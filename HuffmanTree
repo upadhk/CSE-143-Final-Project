@@ -1,0 +1,115 @@
+//Krishna Upadhyayula
+//03/10/17
+//TA: Aishwarya Nirmal
+//Assingment #8: This class compresses a text file 
+//using a Huffman coding scheme 
+
+import java.util.*;
+import java.io.*;
+
+public class HuffmanTree{
+
+   private HuffmanNode overallRoot;
+   
+   //post: creates a Huffman tree using the given array of integer counts
+   public HuffmanTree(int[] count){
+      Queue<HuffmanNode> queue = new PriorityQueue<HuffmanNode>();
+      for(int i = 0; i < count.length; i++){
+         if(count[i] > 0){
+            queue.add(new HuffmanNode(count[i],i));
+         }
+      }
+      queue.add(new HuffmanNode(1,count.length));
+      for(int i = 0; i < queue.size() - 1; i += 0){
+         HuffmanNode a = queue.remove();
+         HuffmanNode b = queue.remove();
+         queue.add(new HuffmanNode(a.frequency + b.frequency, -1, a, b));
+      }
+      overallRoot = queue.remove(); 
+   }
+   
+   //constructs the tree from the given input file 
+   public HuffmanTree(Scanner input){
+      overallRoot = new HuffmanNode(-1, -1);
+      while(input.hasNextLine()){
+        int letter = Integer.parseInt(input.nextLine());
+        String code = input.nextLine();
+        overallRoot = HuffmanTreeHelper(overallRoot, letter, code);  
+      }
+   }
+   
+   //takes in a current Huffman node and its corresponding letter and binary code
+   //to follow down to the ending leaf node
+   //creates empty Huffman nodes until it reaches the end of the tree where it places
+   //the letter with its corresponding frequency
+   private HuffmanNode HuffmanTreeHelper(HuffmanNode current, int letter, String code){
+      char ch = code.charAt(0);
+         if(code.length() !=  1){
+            if(current.left == null){
+               HuffmanNode node1 = new HuffmanNode(-1, -1);
+               current.left = node1;
+            }
+            if(current.right == null){
+               HuffmanNode node2 = new HuffmanNode(-1, -1);
+               current.right = node2;
+            }
+            if(ch == '0'){
+                  HuffmanTreeHelper(current.left, letter, code.substring(1));
+            }else{
+                  HuffmanTreeHelper(current.right, letter, code.substring(1));
+            }             
+         }else{      
+            HuffmanNode finalNode = new HuffmanNode(-1, letter);
+            if(ch == '0'){
+               current.left = finalNode;
+            }else{
+               current.right = finalNode;
+            }
+         }   
+      return current;
+   }
+   
+   //prints letter and corresponding binary code in an output file
+   public void write(PrintStream output){
+      writeHelper(output, overallRoot, "");
+   }
+   
+   //writes the tree to the output file by printing 
+   //the letter value and its updated binary code
+   private void writeHelper(PrintStream output, HuffmanNode current, String code){
+      if(current != null){
+         if(current.left == null && current.right == null){
+            output.println(current.letterValue);
+            output.println(code);
+         }else{
+            writeHelper(output, current.left, code + "0");
+            writeHelper(output, current.right, code + "1");
+         }
+      } 
+   }
+   
+   //pre: bit is not the end of file character 
+   //post: follows each bit until it reaches a leaf node
+   //      where it prints the corresponding letter until it reaches
+   //      the end of file character where it stops
+   public void decode(BitInputStream input, PrintStream output, int eof){
+      HuffmanNode current = new HuffmanNode(-1, -1);
+      int bit = input.readBit();
+      current = overallRoot;
+      while(bit != -1){
+         if(current.left != null && current.right != null){
+            if(bit == 0){
+               current = current.left;
+            }else{
+               current = current.right;
+            }
+         }
+         if(current.left == null && current.right == null && current.letterValue != eof){
+            output.write(current.letterValue);
+            current = overallRoot;
+         }
+         bit = input.readBit();
+      }
+   }
+}
+
