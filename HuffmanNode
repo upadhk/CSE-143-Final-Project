@@ -1,0 +1,37 @@
+//Krishna Upadhyayula
+//03/10/17
+//TA: Aishwarya Nirmal 
+//Assignment #8: This class creates a single Huffman node
+//for the Huffman tree 
+
+import java.util.*;
+
+public class HuffmanNode implements Comparable<HuffmanNode>{
+   public int frequency;
+   public int letterValue; 
+   public HuffmanNode left;
+   public HuffmanNode right;
+   
+   //constructs a Huffman node with the given frequency and letter
+   public HuffmanNode(int frequency, int letterValue){
+      this(frequency, letterValue, null, null);
+   }
+   
+   //constructs a Huffman node with the given frequency and letter
+   //along with its subtrees
+   public HuffmanNode(int frequency, int letterValue, HuffmanNode left, HuffmanNode right){
+      this.frequency = frequency;
+      this.letterValue = letterValue;
+      this.left = left; 
+      this.right = right; 
+   }
+   
+   //compares two Huffman nodes returning an integer
+   //value depending on the resulting priority order
+   //returns a positive integer if the frequency of this is greater
+   //than frequency of other and returns a negative number if
+   //other is greater, returns 0 if they are equal
+   public int compareTo(HuffmanNode other){
+      return this.frequency - other.frequency;
+   }
+}
