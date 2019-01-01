@@ -1,0 +1,115 @@
+//Krishna Upadhyayula
+//03/03/16
+//TA: Aishwarya Nirmal
+//Assignment #7: This class constructs a binary tree from an input file
+//and allows the user to input questions and answers and stores them
+//to use them in future games 
+import java.util.*;
+import java.io.*;
+
+public class QuestionTree{
+
+   private QuestionNode overallRoot;
+   private Scanner console;
+   
+   //constructs the scanner for the class and 
+   //an answer "computer" to start with
+   public QuestionTree(){
+      overallRoot = new QuestionNode("computer");
+      console = new Scanner(System.in);
+   }
+   
+   //uses the given input file to replace the current tree 
+   //with the tree read from the file
+   public void read(Scanner input){
+      overallRoot = readHelper(input);
+   }
+   
+   //use the given input file to return the answer 
+   //to the question in the file
+   public QuestionNode readHelper(Scanner input){
+      if(input.hasNextLine()){
+         String type = input.nextLine();
+         String word = input.nextLine();
+         QuestionNode current = new QuestionNode(word);
+         if(type == "Q:"){      
+            current.yes = readHelper(input);
+         }
+         return current;
+      }
+      return null;
+   }
+   
+   //stores the current tree into the given output file
+   public void write(PrintStream output){
+      writeHelper(output, overallRoot);
+   }
+   
+   //pre: given node is not null
+   //post: if the given node is a question, it will print the question 
+   //      and its corresponding children until it reaches a node
+   //      that is an answer
+   private QuestionNode writeHelper(PrintStream output, QuestionNode root){
+      if(root != null){
+         if(root.yes == null && root.no == null){
+            output.println("A: ");
+         }else{
+            output.println("Q: ");
+         }
+         output.print(root.data);
+         root.yes = writeHelper(output, root.yes);
+         root.no = writeHelper(output, root.no);
+      }
+      return root;
+   }
+   
+   //sets the tree to be the questions asked by the user
+   public void askQuestions(){
+      overallRoot = askQuestionsHelper(overallRoot);
+   }
+   
+   //if the given node is an answer, the computer makes a guess
+   //if the guess is wrong, it asks the user to input a yes/no 
+   //question to distinguish the right answer from other possibilities
+   //adds the incorrect answers and new questions into the current tree
+   private QuestionNode askQuestionsHelper(QuestionNode root){
+      if(root.yes == null && root.no == null){
+         if(yesTo("Would your object happen to be " + root.data + "?")){
+            System.out.println("Great, I got it right!");
+         }else{
+            System.out.print("What is the name of your object? ");
+            String object = console.nextLine();
+            System.out.println("Please give me a yes/no question that");
+            System.out.println("distinguishes between your object");
+            System.out.print("and mine--> ");
+            String question = console.nextLine();
+            if(yesTo("And what is the answer for your object?")){
+               return root = new QuestionNode(question, new QuestionNode(object), root);
+            }else{
+               return root = new QuestionNode(question, root, new QuestionNode(object));
+            }
+         }
+      }else{
+         if(yesTo(root.data)){
+            root.yes = askQuestionsHelper(root.yes);
+         }else{
+            root.no = askQuestionsHelper(root.no);
+         }
+      }
+      return root;
+   }
+   
+    // post: asks the user a question, forcing an answer of "y" or "n";
+    //       returns true if the answer was yes, returns false otherwise
+    public boolean yesTo(String prompt) {
+        System.out.print(prompt + " (y/n)? ");
+        String response = console.nextLine().trim().toLowerCase();
+        while (!response.equals("y") && !response.equals("n")) {
+            System.out.println("Please answer y or n.");
+            System.out.print(prompt + " (y/n)? ");
+            response = console.nextLine().trim().toLowerCase();
+        }
+        return response.equals("y");
+    }
+}
+
