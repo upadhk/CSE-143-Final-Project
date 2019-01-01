@@ -1,0 +1,25 @@
+//Krishna Upadhyayula
+//03/03/17
+//TA: Aishwarya Nirmal
+//Assignment #7: This class constructs a single node
+//               for the binary tree
+import java.util.*;
+
+public class QuestionNode{
+   public String data;
+   public QuestionNode yes;
+   public QuestionNode no;
+   
+   //Constructs a node with the given data
+   public QuestionNode(String data){
+      this(data, null, null);
+   }
+   
+   //Constructs a tree with the given data, 
+   //along with the yes and no answers
+   public QuestionNode(String data, QuestionNode yes, QuestionNode no){
+      this.data = data;
+      this.yes = yes;
+      this.no = no;
+   }
+}
